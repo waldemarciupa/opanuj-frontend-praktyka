@@ -1,18 +1,14 @@
-import { useContext } from 'react';
 import { useParams } from 'react-router-dom';
-import { CartContext } from '../contexts/CartContext';
-import { ProductContext } from '../contexts/ProductContext';
+import { useAppDispatch } from '../hooks/rtk';
+import { addToCart } from '../state/cartSlice';
+import { useGetProductByIdQuery } from '../services/product';
 
 const ProductDetails = () => {
+  const dispatch = useAppDispatch();
   const { id } = useParams();
-  const { addToCart } = useContext(CartContext);
-  const { products } = useContext(ProductContext);
+  const { data } = useGetProductByIdQuery(id!);
 
-  const product = products.find((item) => {
-    return item.id === parseInt(id!);
-  });
-
-  if (!product) {
+  if (!data) {
     return (
       <section className="h-screen flex justify-center items-center">
         Loading...
@@ -20,7 +16,7 @@ const ProductDetails = () => {
     );
   }
 
-  const { title, price, description, image } = product;
+  const { title, price, description, image } = data;
   return (
     <section className="pt-[450px] md:pt-32 pb-[400px] md:pb-12 lg:py-32 h-screen flex items-center">
       <div className="container mx-auto">
@@ -37,7 +33,7 @@ const ProductDetails = () => {
             </div>
             <p className="mb-8">{description}</p>
             <button
-              onClick={() => addToCart(product)}
+              onClick={() => dispatch(addToCart(data))}
               className="bg-green-600 py-4 px-8 text-white"
             >
               Add to cart
